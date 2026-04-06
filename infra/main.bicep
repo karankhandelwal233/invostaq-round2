@@ -3,7 +3,7 @@
 param appName string = 'invostaq${uniqueString(resourceGroup().id)}'
 
 @description('Azure region. Defaults to the resource group region.')
-param location string = resourceGroup().location
+param location string = 'centralus'
 
 @description('SQL administrator username.')
 param sqlAdminLogin string = 'sqladmin'
