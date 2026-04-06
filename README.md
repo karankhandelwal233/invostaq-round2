@@ -1,7 +1,16 @@
 # Invostaq Cloud Assessment: Invoice API
 
-**Live Azure Swagger UI:** `[Cloud deployment URL restricted for privacy]`
+**Live Azure Cloud Endpoint Evaluation:**
+*(Note: Swagger UI is hidden in production by the OpenAPI package for security restrictions, but the live serverless API and Database are 100% online.)*
 
+You can evaluate the functionality of the Live Azure Function natively using `curl` or Postman via the raw endpoints:
+
+**Create an Invoice (POST):**
+```bash
+curl -X POST https://invostaq4y3gemhjmn4ns-func.azurewebsites.net/api/invoice \
+     -H "Content-Type: application/json" \
+     -d '{"CustomerName":"Task 2 Cloud Test", "Amount":2500}'
+```
 This repository contains the complete solution for the backend cloud assessment. The objective was to evaluate fundamentals in .NET, Azure Functions, Entity Framework Core, as well as cloud infrastructure design (IaC) and CI/CD pipelines.
 
 ---
