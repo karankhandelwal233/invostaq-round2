@@ -85,9 +85,18 @@ resource functionApp 'Microsoft.Web/sites@2023-01-01' = {
           name: 'AzureWebJobsStorage'
           value: 'DefaultEndpointsProtocol=https;AccountName=${storageAccount.name};AccountKey=${storageAccount.listKeys().keys[0].value};EndpointSuffix=${environment().suffixes.storage}'
         }
-        { name: 'FUNCTIONS_EXTENSION_VERSION'; value: '~4' }
-        { name: 'FUNCTIONS_WORKER_RUNTIME';   value: 'dotnet-isolated' }
-        { name: 'WEBSITE_RUN_FROM_PACKAGE';   value: '1' }
+        {
+          name: 'FUNCTIONS_EXTENSION_VERSION'
+          value: '~4'
+        }
+        {
+          name: 'FUNCTIONS_WORKER_RUNTIME'
+          value: 'dotnet-isolated'
+        }
+        {
+          name: 'WEBSITE_RUN_FROM_PACKAGE'
+          value: '1'
+        }
         {
           name: 'SqlConnectionString'
           value: 'Server=tcp:${sqlServer.properties.fullyQualifiedDomainName},1433;Initial Catalog=invoicedb;Persist Security Info=False;User ID=${sqlAdminLogin};Password=${sqlAdminPassword};MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;'
