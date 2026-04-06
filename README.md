@@ -1,63 +1,63 @@
 # Invostaq Cloud Assessment: Invoice API
 
-**Live Azure Cloud Endpoint Evaluation:**
-*(Note: Swagger UI is hidden in production by the OpenAPI package for security restrictions, but the live serverless API and Database are 100% online.)*
+This repository contains the complete, production-ready solution for the backend cloud assessment. The objective was to evaluate fundamentals in .NET, Azure Functions, Entity Framework Core, as well as cloud infrastructure design (IaC) and CI/CD automation pipelines.
 
-You can evaluate the functionality of the Live Azure Function natively using `curl` or Postman via the raw endpoints:
+---
 
-**Create an Invoice (POST):**
-```bash
-curl -X POST https://invostaq4y3gemhjmn4ns-func.azurewebsites.net/api/invoice \
-     -H "Content-Type: application/json" \
-     -d '{"CustomerName":"Task 2 Cloud Test", "Amount":2500}'
-```
-This repository contains the complete solution for the backend cloud assessment. The objective was to evaluate fundamentals in .NET, Azure Functions, Entity Framework Core, as well as cloud infrastructure design (IaC) and CI/CD pipelines.
+## 🧪 Live Cloud Evaluation
+
+The Azure infrastructure is currently deeply integrated with a live Microsoft SQL Database and running on a serverless Consumption Plan. 
+
+> [!IMPORTANT]  
+> **Testing the Live Environment:** As per production security best practices, the visual Swagger UI endpoint is hidden on the public Azure deployment. 
+> 
+> Please read the **[Recruiter Testing Guide (Recruiter_Testing_Guide.md)](./Recruiter_Testing_Guide.md)** located in the root of this repository. It contains exact `curl` payloads and live Azure endpoints showcasing how to interact with the active cloud environment.
 
 ---
 
 ## 🎯 Task 1: API Development (Local Execution)
 
-Built a RESTful API using the **.NET 8 Isolated Worker Model** running on an Azure Functions HTTP trigger context.
+Built a RESTful API using the **.NET 8 Isolated Worker Model** running safely on an Azure Functions HTTP trigger context.
 
 ### Endpoints
-The following endpoints were designed adhering to REST principles and configured with OpenAPI (Swagger) for easy testing:
+The backend conforms strictly to REST principles, integrating extensive local `OpenAPI` coverage to simplify endpoint discovery:
 - **`POST /api/invoice`** 
-  - **Purpose:** Validates and saves an incoming invoice JSON payload.
-  - **Validation:** Implemented strict input checks (e.g., rejecting negative amounts, enforcing required fields).
-  - **Returns:** `201 Created` with the newly assigned unique ID, or `400 Bad Request` if validation fails.
+  - **Purpose:** Validates and persists an incoming invoice JSON payload.
+  - **Validation:** Implements strict data checks (e.g., rejecting negative billing amounts, enforcing non-empty customer strings).
+  - **Returns:** `201 Created` with a freshly generated immutable GUID, or `400 Bad Request` citing the specific validation failure.
 - **`GET /api/invoice/{id}`** 
-  - **Purpose:** Retrieves the invoice details based on its GUID.
-  - **Returns:** `200 OK` with the invoice payload, or `404 Not Found` if the ID does not exist in the database.
+  - **Purpose:** Retrieves the invoice data associated with a parsed GUID.
+  - **Returns:** `200 OK` alongside the retrieved JSON payload, or `404 Not Found` if the GUID does not exist.
 
 ### Data Storage Strategy
-- **Framework:** Utilized **Entity Framework (EF) Core**.
+- **Framework:** Developed using **Entity Framework (EF) Core**.
 - **Dynamic Database Routing:** 
-  - For standard local execution (`dotnet build` / `func start`), the application natively defaults to a rapid **SQLite file database** seamlessly created on startup. This allows reviewers to run and evaluate the code offline immediately without installing SQL Server.
-  - In Production (Azure), Bicep injects a `SqlConnectionString` setting causing the `DbContext` provider to gracefully pivot to a live **Microsoft SQL Server**.
+  - **Local Development:** When executed locally via `func start`, the API detects the absence of Azure environmental settings and dynamically falls back to an automatically generated SQLite database (`invoice.db`). This allows code reviewers to rigorously test the API immediately out of the box without requiring a full SQL Server installation.
+  - **Cloud Production:** In Azure, the environment is cleanly injected via Bicep context, pivoting the `DbContext` provider to connect safely to a persistent Microsoft SQL Server.
 
 ---
 
 ## 🌩️ Task 2: Infrastructure & CI/CD Automation
 
-Migrated the local solution into a fully cloud-native, scalable architecture using Azure and GitHub Actions.
+Migrated the isolated local solution into an automated, elastically scalable cloud architecture utilizing Microsoft Azure.
 
 ### Infrastructure as Code (IaC)
-Authored declarative IaC templates using **Azure Bicep** (`infra/main.bicep` and `infra/main.parameters.json`). Bicep was chosen for its native integration with the Azure Resource Manager. The template automatically provisions:
-1. **Azure SQL Server & Database:** Designed with secure firewall bindings allowing only internal Azure traffic.
-2. **Azure Function App:** Configured to run on deeply integrated Linux/Windows Consumption plans (`Y1`), maximizing cost-efficiency via serverless pay-per-execution. *(Note: Overrode the server location targeting `centralus` to bypass aggressive Free-Tier `eastus` quota limits).*
-3. **Azure Storage Account:** Acts as the required fast-state datastore for internal Functions trigger leases.
+Authored strictly declarative infrastructural templates utilizing **Azure Bicep** (`infra/main.bicep`). Bicep was explicitly chosen over manual portal configuration to ensure perfect environment repeatability. The script auto-provisions:
+1. **Azure SQL Server & Database:** Hardened via internal Azure IP firewall bindings.
+2. **Azure Function App:** Configured heavily for `.NET 8 Isolated`. The application is hosted atop an elastic Consumption plan maximizing serverless cost-efficiency. *(Note: During the build, the region target was intelligently overridden to `centralus` to successfully bypass severe Microsoft Free-Tier `eastus` quota limitations without blocking deployment).*
+3. **Azure Storage Account:** Automatically attached to securely manage the internal Function App trigger state.
 
 ### Automation / deployment pipeline
-A complete CI/CD workflow (`.github/workflows/deploy.yml`) is triggered on every push to the `main` branch.
-- **Authentication:** Injects a secure headless Azure Service Principal via GitHub Secrets (`AZURE_CREDENTIALS`).
-- **Build Stage:** Restores, builds, and publishes the .NET 8 codebase into a production-ready package.
-- **Provision Stage:** Compiles the Bicep templates and ensures the live Azure platform reflects the exact state written in source control. Bicep securely injects the `SQL_ADMIN_PASSWORD` (from GitHub Secrets) securely into the Azure Function's environmental memory.
-- **Deploy Stage:** Syncs the built codebase payload straight onto the active serverless infrastructure.
+An intricate CI/CD workflow (`.github/workflows/deploy.yml`) actively watches the `main` git branch to orchestrate automated releases.
+- **Authentication Stage:** Authenticates headless against Azure using an isolated Service Principal token injected purely via GitHub Action Secrets.
+- **Build Stage:** Compiles the .NET 8 codebase into a production-agnostic deployment artifact.
+- **Provision Stage:** Validates and executes the Bicep template. This cleanly links the database by securely passing the `SQL_ADMIN_PASSWORD` secret straight from GitHub into the Azure App Settings, entirely eliminating hard-coded connection strings.
+- **Deployment Stage:** Pushes the finalized, built codebase smoothly onto the running serverless layout.
 
 ---
 
 ## 📦 Deliverables Checklist
-- [x] **Source code in GitHub:** (Complete)
+- [x] **Source code in GitHub:** Verified
 - [x] **IaC templates:** Located under `/infra`
 - [x] **Workflow YAML:** Located under `/.github/workflows/deploy.yml`
 - [x] **README documentation:** (This document)
@@ -66,16 +66,17 @@ A complete CI/CD workflow (`.github/workflows/deploy.yml`) is triggered on every
 
 ## 🚀 How to Run Locally
 
-Because the `DbContext` falls back to SQLite, running locally is incredibly straightforward:
+Because the backend natively injects a SQLite database when a remote cloud server is not accessible, local testing mimics the production experience natively:
 
-1. Clone the repository: `git clone https://github.com/karankhandelwal233/invostaq-round2.git`
-2. Navigate into the folder and build:
+1. Clone the repository to your desktop.
+2. Navigate into the active folder and trigger the initial build:
    ```bash
    dotnet build
    ```
-3. Start the function app:
+3. Boot the local Function App host:
    ```bash
    func start
    ```
-4. A local `invoice.db` file will automatically compile.
-5. Open the Local Swagger Explorer in your browser: `http://localhost:7071/api/swagger/ui`
+4. A local database (`invoice.db`) will auto-compile in your folder.
+5. Navigate to the fully generated documentation and interact with the endpoints safely via the web UI:
+   - 👉 `http://localhost:7071/api/swagger/ui`
