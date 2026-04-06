@@ -1,5 +1,6 @@
 using System;
 using System.IO;
+using System.Net;
 using System.Text.Json;
 using System.Threading.Tasks;
 using InvoiceApi.Data;
@@ -8,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Azure.Functions.Worker;
 using Microsoft.Extensions.Logging;
+using Microsoft.Azure.WebJobs.Extensions.OpenApi.Core.Attributes;
+using Microsoft.OpenApi.Models;
 
 namespace InvoiceApi
 {
@@ -16,8 +19,6 @@ namespace InvoiceApi
         private readonly InvoiceDbContext _db;
         private readonly ILogger<InvoiceFunctions> _logger;
 
-        // Constructor injection: Azure Functions automatically provides
-        // InvoiceDbContext and ILogger because we registered them in Program.cs
         public InvoiceFunctions(InvoiceDbContext db, ILogger<InvoiceFunctions> logger)
         {
             _db = db;
@@ -26,6 +27,10 @@ namespace InvoiceApi
 
         // ─── POST /api/invoice ───────────────────────────────────────────
         [Function("CreateInvoice")]
+        [OpenApiOperation(operationId: "CreateInvoice", tags: new[] { "Invoice" })]
+        [OpenApiRequestBody("application/json", typeof(Invoice), Description = "JSON containing customerName and amount")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.Created, contentType: "application/json", bodyType: typeof(Invoice), Description = "The created invoice")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.BadRequest, Description = "Validation failed")]
         public async Task<IActionResult> CreateInvoice(
             [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = "invoice")]
             HttpRequest req)
@@ -78,6 +83,10 @@ namespace InvoiceApi
 
         // ─── GET /api/invoice/{id} ───────────────────────────────────────
         [Function("GetInvoice")]
+        [OpenApiOperation(operationId: "GetInvoice", tags: new[] { "Invoice" })]
+        [OpenApiParameter(name: "id", In = ParameterLocation.Path, Required = true, Type = typeof(Guid), Description = "The ID of the invoice")]
+        [OpenApiResponseWithBody(statusCode: HttpStatusCode.OK, contentType: "application/json", bodyType: typeof(Invoice), Description = "The requested invoice")]
+        [OpenApiResponseWithoutBody(statusCode: HttpStatusCode.NotFound, Description = "Invoice not found")]
         public async Task<IActionResult> GetInvoice(
             [HttpTrigger(AuthorizationLevel.Anonymous, "get", Route = "invoice/{id:guid}")]
             HttpRequest req,
