@@ -1,6 +1,6 @@
 # Invostaq Cloud Assessment: Invoice API
 
-**Live Azure Swagger UI:** [https://invostaq4y3gemhjmn4ns-func.azurewebsites.net/api/swagger/ui](https://invostaq4y3gemhjmn4ns-func.azurewebsites.net/api/swagger/ui)
+**Live Azure Swagger UI:** `[Cloud deployment URL restricted for privacy]`
 
 This repository contains the complete solution for the backend cloud assessment. The objective was to evaluate fundamentals in .NET, Azure Functions, Entity Framework Core, as well as cloud infrastructure design (IaC) and CI/CD pipelines.
 
